@@ -2,13 +2,14 @@ package main
 
 import (
 	"goback"
+	"log"
 	"net/http"
 )
 
 func main() {
-	router := goback.Inst()
-	router.Get("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("hello"))
+	router := goback.Instance()
+	router.Post("/page/:pageNum", func(w http.ResponseWriter, req *http.Request) {
+		w.Write([]byte(req.Form["pageNum"][0]))
 	})
-	goback.Run(":8080", router)
+	log.Fatal(goback.Run(":8080", router))
 }

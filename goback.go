@@ -10,13 +10,18 @@ import (
 var singleton *router
 var once sync.Once
 
-func Inst() *router {
+func Instance() *router {
+	reqMethods := []string{"GET", "POST", "PUT", "DELETE"}
 	once.Do(func() {
 		singleton = &router{
-			GET:  make(map[*regexp.Regexp]http.HandlerFunc),
-			POST: make(map[*regexp.Regexp]http.HandlerFunc),
+			handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
+			bindParamStuff:     make(map[string]map[*regexp.Regexp]map[int]string),
 		}
 	})
+	for _, reqMethod := range reqMethods {
+		singleton.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
+		singleton.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
+	}
 	return singleton
 }
 
