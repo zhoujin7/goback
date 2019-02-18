@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-type middleware func(http.Handler) http.Handler
+type Middleware func(http.Handler) http.Handler
 
 type router struct {
 	handlerFuncMap  map[string]map[*regexp.Regexp]http.HandlerFunc
 	bindParamStuff  map[string]map[*regexp.Regexp]map[int]string
-	middlewareChain []middleware
+	middlewareChain []Middleware
 }
 
 func (router *router) add(reqMethod string, path string, handlerFunc http.HandlerFunc) {
@@ -58,8 +58,8 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	pathReg, handlerFunc := router.popPathRegHandlerFunc(req.Method, req.URL.Path)
-	bindParamIndexNameMap := router.popBindParamIndexNameMap(req.Method, pathReg)
+	pathReg, handlerFunc := router.popPathRegAndHandlerFunc(req.Method, req.URL.Path)
+	bindParamIndexNameMap := router.bindParamStuff[req.Method][pathReg]
 	if bindParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
 		err := req.ParseForm()
@@ -82,7 +82,7 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (router *router) popPathRegHandlerFunc(reqMethod string, path string) (*regexp.Regexp, http.HandlerFunc) {
+func (router *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*regexp.Regexp, http.HandlerFunc) {
 	for pathReg, handlerFunc := range router.handlerFuncMap[reqMethod] {
 		if pathReg.FindString(path) == path {
 			return pathReg, handlerFunc
@@ -91,15 +91,6 @@ func (router *router) popPathRegHandlerFunc(reqMethod string, path string) (*reg
 	return nil, nil
 }
 
-func (router *router) popBindParamIndexNameMap(reqMethod string, pathReg *regexp.Regexp) map[int]string {
-	for pathReg2, bindParamIndexNameMap := range router.bindParamStuff[reqMethod] {
-		if pathReg != nil && pathReg2.String() == pathReg.String() {
-			return bindParamIndexNameMap
-		}
-	}
-	return nil
-}
-
-func (router *router) Use(m middleware) {
+func (router *router) Use(m Middleware) {
 	router.middlewareChain = append(router.middlewareChain, m)
 }

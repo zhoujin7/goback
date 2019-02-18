@@ -1,6 +1,8 @@
 package goback
 
-import "log"
+import (
+	"fmt"
+)
 
 func Contains(arr []string, str string) bool {
 	for _, s := range arr {
@@ -13,6 +15,6 @@ func Contains(arr []string, str string) bool {
 
 func CheckErr(err error){
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Listen on %v\n", err)
 	}
 }

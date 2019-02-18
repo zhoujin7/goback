@@ -15,7 +15,7 @@ func Instance() *router {
 	once.Do(func() {
 		singleton = &router{
 			handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
-			bindParamStuff:     make(map[string]map[*regexp.Regexp]map[int]string),
+			bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
 		}
 	})
 	for _, reqMethod := range reqMethods {
