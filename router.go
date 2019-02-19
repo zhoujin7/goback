@@ -1,27 +1,24 @@
 package goback
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
-type Middleware func(http.Handler) http.Handler
+type middleware func(handlerFunc http.HandlerFunc) http.HandlerFunc
 
 type router struct {
 	handlerFuncMap  map[string]map[*regexp.Regexp]http.HandlerFunc
 	bindParamStuff  map[string]map[*regexp.Regexp]map[int]string
-	middlewareChain []Middleware
+	middlewareChain []middleware
 }
 
 func (router *router) add(reqMethod string, path string, handlerFunc http.HandlerFunc) {
 	bindParamReg := regexp.MustCompile(`(:[a-z][[:alnum:]]*)`)
 	pathReg := regexp.MustCompile(bindParamReg.ReplaceAllString(path, `[^/]+`))
-	mergedHandler := http.Handler(handlerFunc)
-	for i := len(router.middlewareChain) - 1; i >= 0; i-- {
-		mergedHandler = router.middlewareChain[i](handlerFunc)
-	}
-	router.handlerFuncMap[reqMethod][pathReg] = mergedHandler.ServeHTTP
+	router.handlerFuncMap[reqMethod][pathReg] = handlerFunc
 
 	if bindParamReg.MatchString(path) {
 		pathSegments := strings.Split(path, "/")[1:]
@@ -63,7 +60,9 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if bindParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
 		err := req.ParseForm()
-		CheckErr(err)
+		if err != nil {
+			fmt.Printf("err: %v\n", err)
+		}
 		for index, paramName := range bindParamIndexNameMap {
 			if len(req.Form[paramName]) == 0 {
 				paramValues := []string{pathSegments[index]}
@@ -76,7 +75,11 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if handlerFunc != nil {
-		handlerFunc.ServeHTTP(w, req)
+		nextHandlerFunc := handlerFunc
+		for i := len(router.middlewareChain) - 1; i >= 0; i-- {
+			nextHandlerFunc = router.middlewareChain[i](nextHandlerFunc)
+		}
+		nextHandlerFunc.ServeHTTP(w, req)
 	} else {
 		http.NotFound(w, req)
 	}
@@ -91,6 +94,6 @@ func (router *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*
 	return nil, nil
 }
 
-func (router *router) Use(m Middleware) {
+func (router *router) Use(m middleware) {
 	router.middlewareChain = append(router.middlewareChain, m)
 }
