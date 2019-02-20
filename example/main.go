@@ -1,8 +1,8 @@
 package main
 
 import (
-	"goback"
-	"goback/middlewares"
+	"github.com/zhoujin7/goback"
+	"github.com/zhoujin7/goback/middlewares"
 	"log"
 	"net/http"
 )
