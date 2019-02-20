@@ -1,7 +1,6 @@
 package goback
 
 import (
-	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -49,9 +48,8 @@ func (router *router) Delete(path string, handlerFunc http.HandlerFunc) {
 }
 
 func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	reqMethods := []string{"GET", "POST", "PUT", "DELETE"}
-	if !Contains(reqMethods, req.Method) {
-		http.Error(w, "Method Not Allowed", 405)
+	if reqMethods[req.Method] != req.Method {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -59,18 +57,9 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	bindParamIndexNameMap := router.bindParamStuff[req.Method][pathReg]
 	if bindParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
-		err := req.ParseForm()
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-		}
+		initContext()
 		for index, paramName := range bindParamIndexNameMap {
-			if len(req.Form[paramName]) == 0 {
-				paramValues := []string{pathSegments[index]}
-				req.Form[paramName] = paramValues
-			} else {
-				paramValues := []string{pathSegments[index]}
-				req.Form[paramName] = append(paramValues, req.Form[paramName]...)
-			}
+			Context.setBindParamValue(paramName, pathSegments[index])
 		}
 	}
 

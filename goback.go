@@ -4,25 +4,25 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"sync"
 )
 
-var singleton *router
-var once sync.Once
+var reqMethods = map[string]string{
+	"GET":    "GET",
+	"POST":   "POST",
+	"PUT":    "PUT",
+	"DELETE": "DELETE",
+}
 
 func Instance() *router {
-	reqMethods := []string{"GET", "POST", "PUT", "DELETE"}
-	once.Do(func() {
-		singleton = &router{
-			handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
-			bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
-		}
-	})
-	for _, reqMethod := range reqMethods {
-		singleton.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
-		singleton.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
+	instance := &router{
+		handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
+		bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
 	}
-	return singleton
+	for _, reqMethod := range reqMethods {
+		instance.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
+		instance.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
+	}
+	return instance
 }
 
 func Run(addr string, router *router) error {
