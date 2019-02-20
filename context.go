@@ -19,7 +19,7 @@ func (context *context) GetBindParamValues(paramName string) []string {
 }
 
 func (context *context) GetBindParamValue(paramName string) string {
-	if paramValues := context.bindParams[paramName]; paramValues != nil {
+	if context.bindParams[paramName] != nil {
 		return context.bindParams[paramName][0]
 	}
 	return ""
