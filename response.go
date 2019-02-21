@@ -3,6 +3,11 @@ package goback
 import "net/http"
 
 type Response struct {
-	Writer http.ResponseWriter
+	http.ResponseWriter
 	Status int
+}
+
+func (w *Response) WriteHeader(code int) {
+	w.Status = code
+	w.ResponseWriter.WriteHeader(code)
 }

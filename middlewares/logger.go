@@ -1,14 +1,6 @@
 package middlewares
 
-import (
-	"io"
-	"log"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"time"
-)
-
+/*
 func Logger(out io.Writer) func(next HandlerFn) HandlerFn {
 	return func(next HandlerFn) HandlerFn {
 		logger := log.New(out, "*goback*", 0)
@@ -23,4 +15,4 @@ func Logger(out io.Writer) func(next HandlerFn) HandlerFn {
 				req.Method, req.URL.Path, recorder.Code, req.Referer(), req.UserAgent(), end)
 		}
 	}
-}
+}*/

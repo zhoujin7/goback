@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type HandlerFn func(Context) error
+type HandlerFn func(ctx *Context) error
 
 type middleware func(fn HandlerFn) HandlerFn
 
@@ -55,28 +55,30 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	pathReg, fn := r.popPathRegAndHandlerFunc(req.Method, req.URL.Path)
+	ctx := NewContext(w, req)
+
+	pathReg, fn := r.popPathRegAndHandlerFn(req.Method, req.URL.Path)
 	bindParamIndexNameMap := r.bindParamStuff[req.Method][pathReg]
 	if bindParamIndexNameMap != nil {
-		/*pathSegments := strings.Split(req.URL.Path, "/")[1:]
-		initContext()
+		pathSegments := strings.Split(req.URL.Path, "/")[1:]
 		for index, paramName := range bindParamIndexNameMap {
-			Context.setBindParamValue(paramName, pathSegments[index])
-		}*/
+			ctx.setBindParamValue(paramName, pathSegments[index])
+		}
 	}
 
 	if fn != nil {
-	/*	nextHandlerFunc := fn
-		for i := len(r.middlewareChain) - 1; i >= 0; i-- {
-			nextHandlerFunc = r.middlewareChain[i](nextHandlerFunc)
-		}
-		nextHandlerFunc.ServeHTTP(w, req)*/
+		fn(ctx)
+		/*	nextHandlerFunc := fn
+			for i := len(r.middlewareChain) - 1; i >= 0; i-- {
+				nextHandlerFunc = r.middlewareChain[i](nextHandlerFunc)
+			}
+			nextHandlerFunc.ServeHTTP(w, req)*/
 	} else {
 		http.NotFound(w, req)
 	}
 }
 
-func (r *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*regexp.Regexp, HandlerFn) {
+func (r *router) popPathRegAndHandlerFn(reqMethod string, path string) (*regexp.Regexp, HandlerFn) {
 	for pathReg, fn := range r.handlerFuncMap[reqMethod] {
 		if pathReg.FindString(path) == path {
 			return pathReg, fn
