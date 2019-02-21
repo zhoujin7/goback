@@ -6,11 +6,11 @@ import (
 	"regexp"
 )
 
-var reqMethods = map[string]string{
-	"GET":    "GET",
-	"POST":   "POST",
-	"PUT":    "PUT",
-	"DELETE": "DELETE",
+var reqMethods = map[string]bool{
+	"GET":    true,
+	"POST":   true,
+	"PUT":    true,
+	"DELETE": true,
 }
 
 func Instance() *router {
@@ -18,7 +18,7 @@ func Instance() *router {
 		handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
 		bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
 	}
-	for _, reqMethod := range reqMethods {
+	for reqMethod := range reqMethods {
 		instance.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
 		instance.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
 	}

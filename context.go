@@ -14,21 +14,24 @@ func initContext() {
 	}
 }
 
-func (context *context) GetBindParamValues(paramName string) []string {
-	return context.bindParams[paramName]
-}
-
-func (context *context) GetBindParamValue(paramName string) string {
-	if context.bindParams[paramName] != nil {
-		return context.bindParams[paramName][0]
+func (ctx *context) GetBindParamFirstValue(paramName string) string {
+	if ctx.bindParams[paramName] != nil {
+		return ctx.bindParams[paramName][0]
 	}
 	return ""
 }
 
-func (context *context) setBindParamValue(paramName string, paramValue string) {
-	if len(context.bindParams[paramName]) == 0 {
-		context.bindParams[paramName] = []string{paramValue}
+func (ctx *context) GetBindParamValue(paramName string, index int) string {
+	if ctx.bindParams[paramName] != nil {
+		return ctx.bindParams[paramName][index]
+	}
+	return ""
+}
+
+func (ctx *context) setBindParamValue(paramName string, paramValue string) {
+	if len(ctx.bindParams[paramName]) == 0 {
+		ctx.bindParams[paramName] = []string{paramValue}
 	} else {
-		context.bindParams[paramName] = append(context.bindParams[paramName], paramValue)
+		ctx.bindParams[paramName] = append(ctx.bindParams[paramName], paramValue)
 	}
 }

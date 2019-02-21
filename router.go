@@ -14,47 +14,47 @@ type router struct {
 	middlewareChain []middleware
 }
 
-func (router *router) add(reqMethod string, path string, handlerFunc http.HandlerFunc) {
+func (r *router) add(reqMethod string, path string, handlerFunc http.HandlerFunc) {
 	bindParamReg := regexp.MustCompile(`(:[a-z][[:alnum:]]*)`)
 	pathReg := regexp.MustCompile(bindParamReg.ReplaceAllString(path, `[^/]+`))
-	router.handlerFuncMap[reqMethod][pathReg] = handlerFunc
+	r.handlerFuncMap[reqMethod][pathReg] = handlerFunc
 
 	if bindParamReg.MatchString(path) {
 		pathSegments := strings.Split(path, "/")[1:]
-		router.bindParamStuff[reqMethod][pathReg] = make(map[int]string)
+		r.bindParamStuff[reqMethod][pathReg] = make(map[int]string)
 		for i := range pathSegments {
 			if strings.HasPrefix(pathSegments[i], ":") {
 				bindParam := strings.TrimLeft(pathSegments[i], ":")
-				router.bindParamStuff[reqMethod][pathReg][i] = bindParam
+				r.bindParamStuff[reqMethod][pathReg][i] = bindParam
 			}
 		}
 	}
 }
 
-func (router *router) Get(path string, handlerFunc http.HandlerFunc) {
-	router.add("GET", path, handlerFunc)
+func (r *router) Get(path string, handlerFunc http.HandlerFunc) {
+	r.add("GET", path, handlerFunc)
 }
 
-func (router *router) Post(path string, handlerFunc http.HandlerFunc) {
-	router.add("POST", path, handlerFunc)
+func (r *router) Post(path string, handlerFunc http.HandlerFunc) {
+	r.add("POST", path, handlerFunc)
 }
 
-func (router *router) Put(path string, handlerFunc http.HandlerFunc) {
-	router.add("PUT", path, handlerFunc)
+func (r *router) Put(path string, handlerFunc http.HandlerFunc) {
+	r.add("PUT", path, handlerFunc)
 }
 
-func (router *router) Delete(path string, handlerFunc http.HandlerFunc) {
-	router.add("DELETE", path, handlerFunc)
+func (r *router) Delete(path string, handlerFunc http.HandlerFunc) {
+	r.add("DELETE", path, handlerFunc)
 }
 
-func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	if reqMethods[req.Method] != req.Method {
+func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	if !reqMethods[req.Method] {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	pathReg, handlerFunc := router.popPathRegAndHandlerFunc(req.Method, req.URL.Path)
-	bindParamIndexNameMap := router.bindParamStuff[req.Method][pathReg]
+	pathReg, handlerFunc := r.popPathRegAndHandlerFunc(req.Method, req.URL.Path)
+	bindParamIndexNameMap := r.bindParamStuff[req.Method][pathReg]
 	if bindParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
 		initContext()
@@ -65,8 +65,8 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if handlerFunc != nil {
 		nextHandlerFunc := handlerFunc
-		for i := len(router.middlewareChain) - 1; i >= 0; i-- {
-			nextHandlerFunc = router.middlewareChain[i](nextHandlerFunc)
+		for i := len(r.middlewareChain) - 1; i >= 0; i-- {
+			nextHandlerFunc = r.middlewareChain[i](nextHandlerFunc)
 		}
 		nextHandlerFunc.ServeHTTP(w, req)
 	} else {
@@ -74,8 +74,8 @@ func (router *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (router *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*regexp.Regexp, http.HandlerFunc) {
-	for pathReg, handlerFunc := range router.handlerFuncMap[reqMethod] {
+func (r *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*regexp.Regexp, http.HandlerFunc) {
+	for pathReg, handlerFunc := range r.handlerFuncMap[reqMethod] {
 		if pathReg.FindString(path) == path {
 			return pathReg, handlerFunc
 		}
@@ -83,6 +83,6 @@ func (router *router) popPathRegAndHandlerFunc(reqMethod string, path string) (*
 	return nil, nil
 }
 
-func (router *router) Use(m middleware) {
-	router.middlewareChain = append(router.middlewareChain, m)
+func (r *router) Use(m middleware) {
+	r.middlewareChain = append(r.middlewareChain, m)
 }
