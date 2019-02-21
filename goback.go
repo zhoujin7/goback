@@ -15,11 +15,11 @@ var reqMethods = map[string]bool{
 
 func Instance() *router {
 	instance := &router{
-		handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
+		handlerFuncMap: make(map[string]map[*regexp.Regexp]HandlerFn),
 		bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
 	}
 	for reqMethod := range reqMethods {
-		instance.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
+		instance.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]HandlerFn)
 		instance.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
 	}
 	return instance

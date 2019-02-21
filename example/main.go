@@ -16,7 +16,7 @@ func main() {
 	//router.Use(middlewares.BasicAuth("admin", "123"))
 
 	router.Get("/page/:pageNum", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte(goback.Context.GetBindParamFirstValue("pageNum")))
+		/*w.Write([]byte(goback.Context.GetBindParamFirstValue("pageNum")))*/
 	})
 	router.Get("/", func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("hello"))

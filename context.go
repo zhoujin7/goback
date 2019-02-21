@@ -1,11 +1,46 @@
 package goback
 
-import "net/url"
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+)
 
-type context struct {
+type Context struct {
+	request  *http.Request
+	response *Response
+	HandlerFn func(Context) error
 	bindParams url.Values
 }
 
+// HTML sends an HTTP response with status code.
+func (ctx *Context)HTML(w http.ResponseWriter, code int, html string) {
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(code)
+	w.Write([]byte(html))
+}
+
+// String sends a string response with status code.
+func (ctx *Context)String(w http.ResponseWriter, code int, s string) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.WriteHeader(code)
+	w.Write([]byte(s))
+}
+
+// JSON sends a JSON response with status code.
+func (ctx *Context)JSON(w http.ResponseWriter, code int, i interface{}) (err error) {
+	b, err := json.Marshal(i)
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.WriteHeader(code)
+	w.Write(b)
+	return
+}
+
+/*
 var Context *context
 
 func initContext() {
@@ -35,3 +70,4 @@ func (ctx *context) setBindParamValue(paramName string, paramValue string) {
 		ctx.bindParams[paramName] = append(ctx.bindParams[paramName], paramValue)
 	}
 }
+*/

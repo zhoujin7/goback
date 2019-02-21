@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-func Logger(out io.Writer) func(next http.HandlerFunc) http.HandlerFunc {
-	return func(next http.HandlerFunc) http.HandlerFunc {
+func Logger(out io.Writer) func(next HandlerFn) HandlerFn {
+	return func(next HandlerFn) HandlerFn {
 		logger := log.New(out, "*goback*", 0)
 		return func(w http.ResponseWriter, req *http.Request) {
 			start := time.Now()
