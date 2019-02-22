@@ -5,15 +5,13 @@ import (
 	"net/http"
 )
 
-func BasicAuth(account string, password string) func(next goback.HandlerFn) goback.HandlerFn {
-	return func(next goback.HandlerFn) goback.HandlerFn {
+func BasicAuth(account string, password string) func(fn goback.HandlerFn) goback.HandlerFn {
+	return func(fn goback.HandlerFn) goback.HandlerFn {
 		return func(ctx *goback.Context) error {
-			if userId, pwd, ok := req.BasicAuth(); ok && userId == account && pwd == password {
-				next.ServeHTTP(w, req)
-				return
+			if userId, pwd, ok := ctx.Request().BasicAuth(); ok && userId == account && pwd == password {
+				return fn(ctx)
 			}
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
+			return ctx.HTML(http.StatusUnauthorized, "Unauthorized")
 		}
 	}
 }

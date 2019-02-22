@@ -8,12 +8,12 @@ import (
 
 type HandlerFn func(ctx *Context) error
 
-type middleware func(fn HandlerFn) HandlerFn
+type Middleware func(fn HandlerFn) HandlerFn
 
 type router struct {
 	handlerFuncMap  map[string]map[*regexp.Regexp]HandlerFn
 	bindParamStuff  map[string]map[*regexp.Regexp]map[int]string
-	middlewareChain []middleware
+	middlewareChain []Middleware
 }
 
 func (r *router) add(reqMethod string, path string, fn HandlerFn) {
@@ -67,12 +67,11 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if fn != nil {
-		fn(ctx)
-		/*	nextHandlerFunc := fn
-			for i := len(r.middlewareChain) - 1; i >= 0; i-- {
-				nextHandlerFunc = r.middlewareChain[i](nextHandlerFunc)
-			}
-			nextHandlerFunc.ServeHTTP(w, req)*/
+		nextFn := fn
+		for i := len(r.middlewareChain) - 1; i >= 0; i-- {
+			nextFn = r.middlewareChain[i](nextFn)
+		}
+		nextFn(ctx)
 	} else {
 		http.NotFound(w, req)
 	}
@@ -87,6 +86,6 @@ func (r *router) popPathRegAndHandlerFn(reqMethod string, path string) (*regexp.
 	return nil, nil
 }
 
-func (r *router) Use(m middleware) {
+func (r *router) Use(m Middleware) {
 	r.middlewareChain = append(r.middlewareChain, m)
 }

@@ -2,13 +2,15 @@ package main
 
 import (
 	"github.com/zhoujin7/goback"
+	"github.com/zhoujin7/goback/middlewares"
 	"log"
+	"os"
 )
 
 func main() {
 	router := goback.Instance()
 
-	//router.Use(middlewares.Logger(os.Stdout))
+	router.Use(middlewares.Logger(os.Stdout))
 
 	//router.Use(middlewares.BasicAuth("admin", "123"))
 
