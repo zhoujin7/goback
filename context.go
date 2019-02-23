@@ -9,13 +9,13 @@ import (
 type Context struct {
 	request    *http.Request
 	response   *response
-	bindParams url.Values
+	pathParams url.Values
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	ctx := &Context{}
 	ctx.init(w, req)
-	ctx.bindParams = make(url.Values)
+	ctx.pathParams = make(url.Values)
 	return ctx
 }
 
@@ -60,24 +60,24 @@ func (ctx *Context) JSON(code int, i interface{}) (err error) {
 	return
 }
 
-func (ctx *Context) BindParamFirstValue(paramName string) string {
-	if ctx.bindParams[paramName] != nil {
-		return ctx.bindParams[paramName][0]
+func (ctx *Context) PathParamValue(paramName string) string {
+	if ctx.pathParams[paramName] != nil {
+		return ctx.pathParams[paramName][0]
 	}
 	return ""
 }
 
-func (ctx *Context) BindParamValue(paramName string, index int) string {
-	if ctx.bindParams[paramName] != nil {
-		return ctx.bindParams[paramName][index]
+func (ctx *Context) PathParamValueByIndex(paramName string, index int) string {
+	if ctx.pathParams[paramName] != nil {
+		return ctx.pathParams[paramName][index]
 	}
 	return ""
 }
 
-func (ctx *Context) setBindParamValue(paramName string, paramValue string) {
-	if len(ctx.bindParams[paramName]) == 0 {
-		ctx.bindParams[paramName] = []string{paramValue}
+func (ctx *Context) setPathParamValue(paramName string, paramValue string) {
+	if len(ctx.pathParams[paramName]) == 0 {
+		ctx.pathParams[paramName] = []string{paramValue}
 	} else {
-		ctx.bindParams[paramName] = append(ctx.bindParams[paramName], paramValue)
+		ctx.pathParams[paramName] = append(ctx.pathParams[paramName], paramValue)
 	}
 }

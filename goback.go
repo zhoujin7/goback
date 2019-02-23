@@ -17,7 +17,7 @@ var reqMethods = map[string]bool{
 func Instance() *router {
 	instance := &router{
 		handlerFnMap:   make(map[string]map[*regexp.Regexp]HandlerFn),
-		bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
+		pathParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
 		pool: &sync.Pool{
 			New: func() interface{} {
 				return newContext(nil, nil)
@@ -26,7 +26,7 @@ func Instance() *router {
 	}
 	for reqMethod := range reqMethods {
 		instance.handlerFnMap[reqMethod] = make(map[*regexp.Regexp]HandlerFn)
-		instance.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
+		instance.pathParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
 	}
 	return instance
 }

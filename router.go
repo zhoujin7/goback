@@ -14,23 +14,23 @@ type Middleware func(fn HandlerFn) HandlerFn
 
 type router struct {
 	handlerFnMap    map[string]map[*regexp.Regexp]HandlerFn
-	bindParamStuff  map[string]map[*regexp.Regexp]map[int]string
+	pathParamStuff  map[string]map[*regexp.Regexp]map[int]string
 	middlewareChain []Middleware
 	pool            *sync.Pool
 }
 
 func (r *router) add(reqMethod string, path string, fn HandlerFn) {
-	bindParamReg := regexp.MustCompile(`(:[a-z][[:alnum:]]*)`)
-	pathReg := regexp.MustCompile(bindParamReg.ReplaceAllString(path, `[^/]+`))
+	pathParamReg := regexp.MustCompile(`(:[a-z][[:alnum:]]*)`)
+	pathReg := regexp.MustCompile(pathParamReg.ReplaceAllString(path, `[^/]+`))
 	r.handlerFnMap[reqMethod][pathReg] = fn
 
-	if bindParamReg.MatchString(path) {
+	if pathParamReg.MatchString(path) {
 		pathSegments := strings.Split(path, "/")[1:]
-		r.bindParamStuff[reqMethod][pathReg] = make(map[int]string)
+		r.pathParamStuff[reqMethod][pathReg] = make(map[int]string)
 		for i := range pathSegments {
 			if strings.HasPrefix(pathSegments[i], ":") {
-				bindParam := strings.TrimLeft(pathSegments[i], ":")
-				r.bindParamStuff[reqMethod][pathReg][i] = bindParam
+				pathParam := strings.TrimLeft(pathSegments[i], ":")
+				r.pathParamStuff[reqMethod][pathReg][i] = pathParam
 			}
 		}
 	}
@@ -61,11 +61,11 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx := r.pool.Get().(*Context)
 	ctx.init(w, req)
 	pathReg, fn := r.popPathRegAndHandlerFn(req.Method, req.URL.Path)
-	bindParamIndexNameMap := r.bindParamStuff[req.Method][pathReg]
-	if bindParamIndexNameMap != nil {
+	pathParamIndexNameMap := r.pathParamStuff[req.Method][pathReg]
+	if pathParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
-		for index, paramName := range bindParamIndexNameMap {
-			ctx.setBindParamValue(paramName, pathSegments[index])
+		for index, paramName := range pathParamIndexNameMap {
+			ctx.setPathParamValue(paramName, pathSegments[index])
 		}
 	}
 

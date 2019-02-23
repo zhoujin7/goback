@@ -15,7 +15,7 @@ func main() {
 	//router.Use(middlewares.BasicAuth("admin", "123"))
 
 	router.Get("/page/:pageNum", func(ctx *goback.Context) error {
-		return ctx.String(200, ctx.BindParamFirstValue("pageNum"))
+		return ctx.String(200, ctx.PathParamValue("pageNum"))
 	})
 
 	router.Get("/", func(ctx *goback.Context) error {
