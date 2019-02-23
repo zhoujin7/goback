@@ -8,23 +8,27 @@ import (
 
 type Context struct {
 	request    *http.Request
-	response   *Response
+	response   *response
 	bindParams url.Values
 }
 
-func NewContext(w http.ResponseWriter, r *http.Request) *Context {
+func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	ctx := &Context{}
-	ctx.response = &Response{w, 200}
-	ctx.request = r
+	ctx.init(w, req)
 	ctx.bindParams = make(url.Values)
 	return ctx
+}
+
+func (ctx *Context) init(w http.ResponseWriter, req *http.Request) {
+	ctx.response = &response{w, 200}
+	ctx.request = req
 }
 
 func (ctx *Context) Request() *http.Request {
 	return ctx.request
 }
 
-func (ctx *Context) Response() *Response {
+func (ctx *Context) Response() *response {
 	return ctx.response
 }
 
@@ -56,22 +60,19 @@ func (ctx *Context) JSON(code int, i interface{}) (err error) {
 	return
 }
 
-
-// todo 读写map加锁
-func (ctx *Context) GetBindParamFirstValue(paramName string) string {
+func (ctx *Context) BindParamFirstValue(paramName string) string {
 	if ctx.bindParams[paramName] != nil {
 		return ctx.bindParams[paramName][0]
 	}
 	return ""
 }
 
-func (ctx *Context) GetBindParamValue(paramName string, index int) string {
+func (ctx *Context) BindParamValue(paramName string, index int) string {
 	if ctx.bindParams[paramName] != nil {
 		return ctx.bindParams[paramName][index]
 	}
 	return ""
 }
-
 
 func (ctx *Context) setBindParamValue(paramName string, paramValue string) {
 	if len(ctx.bindParams[paramName]) == 0 {

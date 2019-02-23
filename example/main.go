@@ -15,19 +15,19 @@ func main() {
 	//router.Use(middlewares.BasicAuth("admin", "123"))
 
 	router.Get("/page/:pageNum", func(ctx *goback.Context) error {
-
-		return ctx.String(200, ctx.GetBindParamFirstValue("pageNum"))
+		return ctx.String(200, ctx.BindParamFirstValue("pageNum"))
 	})
+
 	router.Get("/", func(ctx *goback.Context) error {
-		return ctx.HTML(200,`<h1>hello</h1>`)
+		return ctx.HTML(200, `<h1>Welcome back!</h1>`)
 	})
 
 	router.Get("/a+", func(ctx *goback.Context) error {
-		return ctx.String(200,`aaaaaaaa`)
+		return ctx.String(200, `aaaaaaaa`)
 	})
 
 	router.Get("/500", func(ctx *goback.Context) error {
-		return ctx.String(500,`500 Internal Server Error`)
+		return ctx.String(500, `500 Internal Server Error`)
 	})
 
 	log.Fatal(goback.Run(":8080", router))

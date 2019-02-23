@@ -1,9 +1,11 @@
 package goback
 
 import (
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 type HandlerFn func(ctx *Context) error
@@ -11,15 +13,16 @@ type HandlerFn func(ctx *Context) error
 type Middleware func(fn HandlerFn) HandlerFn
 
 type router struct {
-	handlerFuncMap  map[string]map[*regexp.Regexp]HandlerFn
+	handlerFnMap    map[string]map[*regexp.Regexp]HandlerFn
 	bindParamStuff  map[string]map[*regexp.Regexp]map[int]string
 	middlewareChain []Middleware
+	pool            *sync.Pool
 }
 
 func (r *router) add(reqMethod string, path string, fn HandlerFn) {
 	bindParamReg := regexp.MustCompile(`(:[a-z][[:alnum:]]*)`)
 	pathReg := regexp.MustCompile(bindParamReg.ReplaceAllString(path, `[^/]+`))
-	r.handlerFuncMap[reqMethod][pathReg] = fn
+	r.handlerFnMap[reqMethod][pathReg] = fn
 
 	if bindParamReg.MatchString(path) {
 		pathSegments := strings.Split(path, "/")[1:]
@@ -55,8 +58,8 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ctx := NewContext(w, req)
-
+	ctx := r.pool.Get().(*Context)
+	ctx.init(w, req)
 	pathReg, fn := r.popPathRegAndHandlerFn(req.Method, req.URL.Path)
 	bindParamIndexNameMap := r.bindParamStuff[req.Method][pathReg]
 	if bindParamIndexNameMap != nil {
@@ -71,14 +74,17 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		for i := len(r.middlewareChain) - 1; i >= 0; i-- {
 			nextFn = r.middlewareChain[i](nextFn)
 		}
-		nextFn(ctx)
+		err := nextFn(ctx)
+		if err != nil {
+			log.Println(err)
+		}
 	} else {
 		http.NotFound(w, req)
 	}
 }
 
 func (r *router) popPathRegAndHandlerFn(reqMethod string, path string) (*regexp.Regexp, HandlerFn) {
-	for pathReg, fn := range r.handlerFuncMap[reqMethod] {
+	for pathReg, fn := range r.handlerFnMap[reqMethod] {
 		if pathReg.FindString(path) == path {
 			return pathReg, fn
 		}
