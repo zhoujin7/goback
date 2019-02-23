@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"sync"
 )
 
 var reqMethods = map[string]bool{
@@ -15,11 +16,16 @@ var reqMethods = map[string]bool{
 
 func Instance() *router {
 	instance := &router{
-		handlerFuncMap: make(map[string]map[*regexp.Regexp]http.HandlerFunc),
+		handlerFnMap:   make(map[string]map[*regexp.Regexp]HandlerFn),
 		bindParamStuff: make(map[string]map[*regexp.Regexp]map[int]string),
+		pool: &sync.Pool{
+			New: func() interface{} {
+				return newContext(nil, nil)
+			},
+		},
 	}
 	for reqMethod := range reqMethods {
-		instance.handlerFuncMap[reqMethod] = make(map[*regexp.Regexp]http.HandlerFunc)
+		instance.handlerFnMap[reqMethod] = make(map[*regexp.Regexp]HandlerFn)
 		instance.bindParamStuff[reqMethod] = make(map[*regexp.Regexp]map[int]string)
 	}
 	return instance
