@@ -78,6 +78,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
+		r.pool.Put(ctx)
 	} else {
 		http.NotFound(w, req)
 	}

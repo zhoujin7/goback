@@ -15,13 +15,13 @@ type Context struct {
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	ctx := &Context{}
 	ctx.init(w, req)
-	ctx.pathParams = make(url.Values)
 	return ctx
 }
 
 func (ctx *Context) init(w http.ResponseWriter, req *http.Request) {
-	ctx.response = &response{w, 200}
 	ctx.request = req
+	ctx.response = &response{w, 200}
+	ctx.pathParams = make(url.Values)
 }
 
 func (ctx *Context) Request() *http.Request {
