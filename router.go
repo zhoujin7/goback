@@ -14,7 +14,7 @@ type Middleware func(fn HandlerFn) HandlerFn
 
 type router struct {
 	handlerFnMap    map[string]map[*regexp.Regexp]HandlerFn
-	pathParamStuff  map[string]map[*regexp.Regexp]map[int]string
+	pathParamStore  map[string]map[*regexp.Regexp]map[int]string
 	middlewareChain []Middleware
 	pool            *sync.Pool
 }
@@ -26,11 +26,11 @@ func (r *router) add(reqMethod string, path string, fn HandlerFn) {
 
 	if pathParamReg.MatchString(path) {
 		pathSegments := strings.Split(path, "/")[1:]
-		r.pathParamStuff[reqMethod][pathReg] = make(map[int]string)
+		r.pathParamStore[reqMethod][pathReg] = make(map[int]string)
 		for i := range pathSegments {
 			if strings.HasPrefix(pathSegments[i], ":") {
 				pathParam := strings.TrimLeft(pathSegments[i], ":")
-				r.pathParamStuff[reqMethod][pathReg][i] = pathParam
+				r.pathParamStore[reqMethod][pathReg][i] = pathParam
 			}
 		}
 	}
@@ -61,7 +61,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	ctx := r.pool.Get().(*Context)
 	ctx.init(w, req)
 	pathReg, fn := r.popPathRegAndHandlerFn(req.Method, req.URL.Path)
-	pathParamIndexNameMap := r.pathParamStuff[req.Method][pathReg]
+	pathParamIndexNameMap := r.pathParamStore[req.Method][pathReg]
 	if pathParamIndexNameMap != nil {
 		pathSegments := strings.Split(req.URL.Path, "/")[1:]
 		for index, paramName := range pathParamIndexNameMap {
