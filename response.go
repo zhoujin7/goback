@@ -7,11 +7,11 @@ type response struct {
 	statusCode int
 }
 
-func (w *response) WriteHeader(code int) {
-	w.statusCode = code
-	w.ResponseWriter.WriteHeader(code)
+func (resp *response) WriteHeader(code int) {
+	resp.statusCode = code
+	resp.ResponseWriter.WriteHeader(code)
 }
 
-func (w *response) StatusCode() int {
-	return w.statusCode
+func (resp *response) StatusCode() int {
+	return resp.statusCode
 }
