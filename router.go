@@ -76,7 +76,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 		err := nextFn(ctx)
 		if err != nil {
-			log.Println(err)
+			log.Fatal(err)
 		}
 		r.pool.Put(ctx)
 	} else {

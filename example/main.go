@@ -12,7 +12,13 @@ func main() {
 
 	router.Use(middlewares.Logger(os.Stdout))
 
-	//router.Use(middlewares.BasicAuth("admin", "123"))
+	router.Use(middlewares.BasicAuth("admin", "123", []string{
+		"/admin.*",
+	}))
+
+	router.Get("/admin", func(ctx *goback.Context) error {
+		return ctx.HTML(200, "<h1 style='color:red;'>Welcome Admin</h1>")
+	})
 
 	router.Get("/page/:pageNum", func(ctx *goback.Context) error {
 		return ctx.String(200, ctx.PathParamValue("pageNum"))
