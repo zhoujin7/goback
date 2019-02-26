@@ -3,13 +3,12 @@ package goback
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
 )
 
 type Context struct {
 	request    *http.Request
 	response   *response
-	pathParams url.Values
+	pathParams map[string][]string
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
@@ -21,7 +20,7 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 func (ctx *Context) init(w http.ResponseWriter, req *http.Request) {
 	ctx.request = req
 	ctx.response = &response{w, 200}
-	ctx.pathParams = make(url.Values)
+	ctx.pathParams = make(map[string][]string)
 }
 
 func (ctx *Context) Request() *http.Request {
@@ -61,14 +60,14 @@ func (ctx *Context) JSON(code int, i interface{}) (err error) {
 }
 
 func (ctx *Context) PathParamValue(paramName string) string {
-	if ctx.pathParams[paramName] != nil {
+	if ctx.pathParams[paramName] != nil && len(ctx.pathParams[paramName]) > 0 {
 		return ctx.pathParams[paramName][0]
 	}
 	return ""
 }
 
 func (ctx *Context) PathParamValueByIndex(paramName string, index int) string {
-	if ctx.pathParams[paramName] != nil {
+	if ctx.pathParams[paramName] != nil && index >= 0 && index < len(ctx.pathParams[paramName]) {
 		return ctx.pathParams[paramName][index]
 	}
 	return ""

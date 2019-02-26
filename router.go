@@ -59,6 +59,7 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	ctx := r.pool.Get().(*Context)
+	defer r.pool.Put(ctx)
 	ctx.init(w, req)
 	pathReg, fn := r.popPathRegAndHandlerFn(req.Method, req.URL.Path)
 	pathParamIndexNameMap := r.pathParamStore[req.Method][pathReg]
@@ -78,7 +79,6 @@ func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Println(err)
 		}
-		r.pool.Put(ctx)
 	} else {
 		http.NotFound(w, req)
 	}
