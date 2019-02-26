@@ -8,8 +8,10 @@ import (
 	"sync"
 )
 
+// HandlerFn defines a function to serve HTTP requests.
 type HandlerFn func(ctx *Context) error
 
+// Middleware defines a function to process middleware.
 type Middleware func(fn HandlerFn) HandlerFn
 
 type router struct {
@@ -36,22 +38,27 @@ func (r *router) add(reqMethod string, path string, fn HandlerFn) {
 	}
 }
 
+// Get registers a GET request handler for a path.
 func (r *router) Get(path string, fn HandlerFn) {
 	r.add("GET", path, fn)
 }
 
+// Post registers a POST request handler for a path.
 func (r *router) Post(path string, fn HandlerFn) {
 	r.add("POST", path, fn)
 }
 
+// Put registers a PUT request handler for a path.
 func (r *router) Put(path string, fn HandlerFn) {
 	r.add("PUT", path, fn)
 }
 
+// Delete registers a DELETE request handler for a path.
 func (r *router) Delete(path string, fn HandlerFn) {
 	r.add("DELETE", path, fn)
 }
 
+// ServeHTTP implements`http.Handler`interface, which serves HTTP requests.
 func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !reqMethods[req.Method] {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -93,6 +100,7 @@ func (r *router) popPathRegAndHandlerFn(reqMethod string, path string) (*regexp.
 	return nil, nil
 }
 
+// Load middleware.
 func (r *router) Use(m Middleware) {
 	r.middlewareChain = append(r.middlewareChain, m)
 }

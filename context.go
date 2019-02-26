@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Context provides an HTTP context.
 type Context struct {
 	request    *http.Request
 	response   *response
@@ -23,10 +24,12 @@ func (ctx *Context) init(w http.ResponseWriter, req *http.Request) {
 	ctx.pathParams = make(map[string][]string)
 }
 
+// Request returns *http.Request.
 func (ctx *Context) Request() *http.Request {
 	return ctx.request
 }
 
+// Response returns *response.
 func (ctx *Context) Response() *response {
 	return ctx.response
 }
@@ -59,6 +62,7 @@ func (ctx *Context) JSON(code int, i interface{}) (err error) {
 	return
 }
 
+// PathParamValue returns the first path parameter by name.
 func (ctx *Context) PathParamValue(paramName string) string {
 	if ctx.pathParams[paramName] != nil && len(ctx.pathParams[paramName]) > 0 {
 		return ctx.pathParams[paramName][0]
@@ -66,6 +70,7 @@ func (ctx *Context) PathParamValue(paramName string) string {
 	return ""
 }
 
+// PathParamValue returns path parameter by name and index.
 func (ctx *Context) PathParamValueByIndex(paramName string, index int) string {
 	if ctx.pathParams[paramName] != nil && index >= 0 && index < len(ctx.pathParams[paramName]) {
 		return ctx.pathParams[paramName][index]

@@ -2,20 +2,18 @@ package middlewares
 
 import (
 	"github.com/zhoujin7/goback"
-	"log"
 	"net/http"
 	"regexp"
 )
 
+// Middleware for basic authentication.
 func BasicAuth(account string, password string, restrictedPaths []string) func(fn goback.HandlerFn) goback.HandlerFn {
 	return func(fn goback.HandlerFn) goback.HandlerFn {
 		return func(ctx *goback.Context) error {
 			req := ctx.Request()
 			for _, path := range restrictedPaths {
-				restricted, err := regexp.MatchString(path, req.URL.Path)
-				if err != nil {
-					log.Fatal(err)
-				}
+				pathReg := regexp.MustCompile(path)
+				restricted := pathReg.MatchString(req.URL.Path)
 				if restricted {
 					if userId, pwd, ok := req.BasicAuth(); ok && userId == account && pwd == password {
 						return fn(ctx)
