@@ -1,5 +1,6 @@
 # goback
 Goback is a simple Web framework written in Go.
+[![Go Report Card](https://goreportcard.com/badge/github.com/zhoujin7/goback)](https://goreportcard.com/report/github.com/zhoujin7/goback)
 [![GoDoc](https://godoc.org/github.com/zhoujin7/goback?status.svg)](https://godoc.org/github.com/zhoujin7/goback)
 [![Build Status](https://www.travis-ci.org/zhoujin7/goback.svg?branch=master)](https://www.travis-ci.org/zhoujin7/goback)
 [![codecov](https://codecov.io/gh/zhoujin7/goback/branch/master/graph/badge.svg)](https://codecov.io/gh/zhoujin7/goback)
