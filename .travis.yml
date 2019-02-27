@@ -11,3 +11,4 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - curl -d "repo=github.com/zhoujin7/goback" https://goreportcard.com/checks
