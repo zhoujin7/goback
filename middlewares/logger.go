@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Middleware for logging client requests.
+// Logger returns middleware for logging client requests.
 func Logger(out io.Writer) func(fn goback.HandlerFn) goback.HandlerFn {
 	return func(fn goback.HandlerFn) goback.HandlerFn {
 		logger := log.New(out, "*goback*", 0)

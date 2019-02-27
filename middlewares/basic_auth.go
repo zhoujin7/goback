@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-// Middleware for basic authentication.
+// BasicAuth returns middleware for basic authentication.
 func BasicAuth(account string, password string, restrictedPaths []string) func(fn goback.HandlerFn) goback.HandlerFn {
 	return func(fn goback.HandlerFn) goback.HandlerFn {
 		return func(ctx *goback.Context) error {

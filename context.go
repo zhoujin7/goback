@@ -70,7 +70,7 @@ func (ctx *Context) PathParamValue(paramName string) string {
 	return ""
 }
 
-// PathParamValue returns path parameter by name and index.
+// PathParamValueByIndex returns path parameter by name and index.
 func (ctx *Context) PathParamValueByIndex(paramName string, index int) string {
 	if ctx.pathParams[paramName] != nil && index >= 0 && index < len(ctx.pathParams[paramName]) {
 		return ctx.pathParams[paramName][index]
