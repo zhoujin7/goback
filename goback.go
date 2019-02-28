@@ -32,7 +32,7 @@ func Instance() *router {
 	return instance
 }
 
-// Run outputs the listening address and returns http.ListenAndServe.
+// Run outputs the listening address then calls http.ListenAndServe.
 func Run(addr string, router *router) error {
 	fmt.Printf("Listen on %s\n", addr)
 	return http.ListenAndServe(addr, router)
