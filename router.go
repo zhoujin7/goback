@@ -85,6 +85,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		err := nextFn(ctx)
 		if err != nil {
 			log.Println(err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	} else {
 		http.NotFound(w, req)

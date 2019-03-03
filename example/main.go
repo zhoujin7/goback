@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/zhoujin7/goback"
 	"github.com/zhoujin7/goback/middlewares"
 	"log"
@@ -33,7 +34,7 @@ func main() {
 	})
 
 	router.Get("/500", func(ctx *goback.Context) error {
-		return ctx.String(500, `500 Internal Server Error`)
+		return errors.New("500 Internal Server Error")
 	})
 
 	log.Fatal(goback.Run(":8080", router))
