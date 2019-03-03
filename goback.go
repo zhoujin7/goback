@@ -14,9 +14,9 @@ var reqMethods = map[string]bool{
 	"DELETE": true,
 }
 
-// Instance returns a router instance.
-func Instance() *router {
-	instance := &router{
+// Instance returns a Router instance.
+func Instance() *Router {
+	instance := &Router{
 		handlerFnMap:   make(map[string]map[*regexp.Regexp]HandlerFn),
 		pathParamStore: make(map[string]map[*regexp.Regexp]map[int]string),
 		pool: &sync.Pool{
@@ -33,7 +33,7 @@ func Instance() *router {
 }
 
 // Run outputs the listening address then calls http.ListenAndServe.
-func Run(addr string, router *router) error {
+func Run(addr string, router *Router) error {
 	fmt.Printf("Listen on %s\n", addr)
 	return http.ListenAndServe(addr, router)
 }
