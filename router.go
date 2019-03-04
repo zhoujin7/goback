@@ -14,6 +14,7 @@ type HandlerFn func(ctx *Context) error
 // Middleware defines a function to process middleware.
 type Middleware func(fn HandlerFn) HandlerFn
 
+// Router contains the route rules map and chained middleware
 type Router struct {
 	handlerFnMap    map[string]map[*regexp.Regexp]HandlerFn
 	pathParamStore  map[string]map[*regexp.Regexp]map[int]string
@@ -101,7 +102,7 @@ func (r *Router) popPathRegAndHandlerFn(reqMethod string, path string) (*regexp.
 	return nil, nil
 }
 
-// Load middleware.
+// Use method is used to Load middleware.
 func (r *Router) Use(m Middleware) {
 	r.middlewareChain = append(r.middlewareChain, m)
 }
