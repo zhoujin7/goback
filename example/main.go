@@ -14,7 +14,8 @@ func main() {
 	router.Use(middlewares.Logger(os.Stdout))
 
 	router.Use(middlewares.BasicAuth("admin", "123", []string{
-		"/admin.*",
+		`/admin.*`,
+		//`/[a`,
 	}))
 
 	router.Get("/admin", func(ctx *goback.Context) error {
